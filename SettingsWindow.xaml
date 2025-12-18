@@ -14,6 +14,8 @@
         <DatePicker x:Name="TargetDateInput" Margin="0,0,0,15" SelectedDateChanged="SettingChanged"/>
 
         <CheckBox x:Name="TimeDetailCheck" Content="Show Time Detail (Hrs/Mins)" Margin="0,0,0,15" Checked="SettingChanged" Unchecked="SettingChanged"/>
+        
+        <CheckBox x:Name="StartupCheck" Content="Run on Startup" Margin="0,0,0,15" Checked="SettingChanged" Unchecked="SettingChanged"/>
 
         <TextBlock Text="Overlay Scale:" Margin="0,0,0,5"/>
         <Slider x:Name="ScaleSlider" Minimum="0.5" Maximum="2.0" Value="1.0" Margin="0,0,0,15" AutoToolTipPlacement="TopLeft" ValueChanged="SettingChanged"/>

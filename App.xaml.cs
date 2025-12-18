@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Windows;
 using System.Windows.Forms;
+using Microsoft.Win32;
 using Application = System.Windows.Application;
 
 namespace DaysCounter
@@ -15,6 +16,9 @@ namespace DaysCounter
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            var config = AppConfig.Load();
+            SetStartup(config.RunOnStartup);
 
             // Initialize MainWindow
             _mainWindow = new MainWindow();
@@ -43,6 +47,27 @@ namespace DaysCounter
                 _timer.Stop();
             };
             _timer.Start();
+        }
+
+        public void SetStartup(bool enable)
+        {
+            try
+            {
+                using (var key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true))
+                {
+                    if (enable)
+                    {
+                        string path = Environment.ProcessPath;
+                        if (!string.IsNullOrEmpty(path))
+                            key.SetValue("DaysCounter", path);
+                    }
+                    else
+                    {
+                        key.DeleteValue("DaysCounter", false);
+                    }
+                }
+            }
+            catch { }
         }
 
         private void OpenSettings()

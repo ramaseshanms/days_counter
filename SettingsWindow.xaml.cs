@@ -24,6 +24,7 @@ namespace DaysCounter
             ScaleSlider.Value = _config.OverlayScale;
             TargetDateInput.SelectedDate = _config.TargetDate;
             TimeDetailCheck.IsChecked = _config.ShowTimeDetail;
+            StartupCheck.IsChecked = _config.RunOnStartup;
         }
 
         private void SettingChanged(object sender, RoutedEventArgs e)
@@ -47,12 +48,17 @@ namespace DaysCounter
             if (TargetDateInput.SelectedDate.HasValue)
                 _config.TargetDate = TargetDateInput.SelectedDate.Value;
             _config.ShowTimeDetail = TimeDetailCheck.IsChecked ?? false;
+            _config.RunOnStartup = StartupCheck.IsChecked ?? false;
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             UpdateConfigFromUI();
             _config.Save();
+            if (System.Windows.Application.Current is App app)
+            {
+                app.SetStartup(_config.RunOnStartup);
+            }
             Close();
         }
     }

@@ -12,6 +12,7 @@ namespace DaysCounter
         public DateTime TargetDate { get; set; } = new DateTime(2025, 12, 18);
         public bool ShowTimeDetail { get; set; } = false;
         public bool FirstRun { get; set; } = true;
+        public bool RunOnStartup { get; set; } = true;
 
         private static string ConfigPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DaysCounter", "config.json");
 
