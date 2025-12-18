@@ -38,9 +38,9 @@ namespace DaysCounter
             DaysText.Text = $"{(int)diff.TotalDays} Days\n{diff.Hours:D2}:{diff.Minutes:D2}:{diff.Seconds:D2}.{diff.Milliseconds / 100}";
         }
 
-        public void ApplySettings()
+        public void ApplySettings(AppConfig config = null)
         {
-            _config = AppConfig.Load();
+            _config = config ?? AppConfig.Load();
             
             try
             {
@@ -66,39 +66,37 @@ namespace DaysCounter
             
             // Scale transform
             DaysText.LayoutTransform = new ScaleTransform(_config.OverlayScale, _config.OverlayScale);
+
+            // Manual Sizing to prevent Jitter
+            if (this.WindowState == WindowState.Normal && this.Width < SystemParameters.PrimaryScreenWidth)
+            {
+                DaysText.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                this.Width = DaysText.DesiredSize.Width + 60; // Padding
+                this.Height = DaysText.DesiredSize.Height + 60;
+            }
         }
 
         public void GoFullScreen()
         {
             this.WindowState = WindowState.Normal;
             
-            // Allow auto-sizing
-            this.SizeToContent = SizeToContent.WidthAndHeight;
-            
-            // Force layout update to get actual size
-            this.UpdateLayout();
-            
-            // Center on Screen
-            this.Left = (SystemParameters.PrimaryScreenWidth - this.ActualWidth) / 2;
-            this.Top = (SystemParameters.PrimaryScreenHeight - this.ActualHeight) / 2;
+            // For fullscreen start, we can just use screen dimensions
+            this.Left = 0;
+            this.Top = 0;
+            this.Width = SystemParameters.PrimaryScreenWidth;
+            this.Height = SystemParameters.PrimaryScreenHeight;
             
             // Styling
             DaysText.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
             DaysText.VerticalAlignment = VerticalAlignment.Center;
-            DaysText.Margin = new Thickness(20); // Add padding for drag area
+            DaysText.Margin = new Thickness(0); 
         }
 
         public void GoMiniMode()
         {
-            // Keep sizing to content, just move position and maybe scale
-            // Or if we want a fixed small box:
-            // this.SizeToContent = SizeToContent.Manual;
-            // this.Width = 350 * _config.OverlayScale;
-            // this.Height = 150 * _config.OverlayScale;
-            
-            // Let's stick onto Content Sizing for better result, just move it.
-            this.SizeToContent = SizeToContent.WidthAndHeight;
-            this.UpdateLayout();
+            // Transition to Mini Mode
+            // Force an update to correct size
+            ApplySettings(_config);
 
             // Top Left
             this.Left = 20;
