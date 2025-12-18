@@ -9,10 +9,17 @@ namespace DaysCounter
     {
         private AppConfig _config;
 
+        private System.Windows.Threading.DispatcherTimer _updateTimer;
+
         public MainWindow()
         {
             InitializeComponent();
             Loaded += MainWindow_Loaded;
+            
+            _updateTimer = new System.Windows.Threading.DispatcherTimer();
+            _updateTimer.Interval = TimeSpan.FromMilliseconds(100);
+            _updateTimer.Tick += UpdateTimeText;
+            
             ApplySettings();
         }
 
@@ -20,6 +27,15 @@ namespace DaysCounter
         {
             // Initial Fullscreen State
             GoFullScreen();
+        }
+
+        private void UpdateTimeText(object sender, EventArgs e)
+        {
+            if (_config == null || !_config.ShowTimeDetail) return;
+
+            var diff = DateTime.Now - _config.TargetDate;
+            // Format: X Days, HH:mm:ss.f
+            DaysText.Text = $"{(int)diff.TotalDays} Days\n{diff.Hours:D2}:{diff.Minutes:D2}:{diff.Seconds:D2}.{diff.Milliseconds / 100}";
         }
 
         public void ApplySettings()
@@ -34,21 +50,18 @@ namespace DaysCounter
 
             DaysText.FontSize = _config.FontSize;
             
-            var diff = DateTime.Now - _config.TargetDate;
-
             if (_config.ShowTimeDetail)
             {
-                // Format: "X Days, HH:mm:ss"
-                DaysText.Text = $"{(int)diff.TotalDays} Days\n{diff.Hours:D2}:{diff.Minutes:D2}:{diff.Seconds:D2}";
+                _updateTimer.Start();
+                UpdateTimeText(null, null); // Immediate update
             }
             else
             {
-                // Calculate days
-                var days = (int)diff.TotalDays;
-                
-                // Handle wording
-                if (days == 1) DaysText.Text = $"{days} Day";
-                else DaysText.Text = $"{days} Days";
+                _updateTimer.Stop();
+                // Static Days Calculation
+                var diff = (DateTime.Now.Date - _config.TargetDate.Date).Days;
+                if (diff == 1) DaysText.Text = $"{diff} Day";
+                else DaysText.Text = $"{diff} Days";
             }
             
             // Scale transform
@@ -71,14 +84,14 @@ namespace DaysCounter
 
         public void GoMiniMode()
         {
-            this.Width = 350 * _config.OverlayScale; // Slightly wider for time
+            this.Width = 350 * _config.OverlayScale; 
             this.Height = 150 * _config.OverlayScale;
             
             // Top Left
             this.Left = 20;
             this.Top = 20;
 
-            // Align text to center of mini box (looks better draggable)
+            // Align text to center
             DaysText.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
             DaysText.VerticalAlignment = VerticalAlignment.Center;
             DaysText.Margin = new Thickness(0);
@@ -87,11 +100,10 @@ namespace DaysCounter
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            try
+            if (e.ButtonState == MouseButtonState.Pressed)
             {
                 this.DragMove();
             }
-            catch { }
         }
     }
 }
