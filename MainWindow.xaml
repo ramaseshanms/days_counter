@@ -1,0 +1,15 @@
+﻿<Window x:Class="DaysCounter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DaysCounter" Height="450" Width="800"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" Topmost="True" ShowInTaskbar="False"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+    <Grid>
+        <TextBlock x:Name="DaysText" Text="0 Days" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                   FontWeight="Bold" Foreground="White">
+            <TextBlock.Effect>
+                <DropShadowEffect Color="Black" BlurRadius="5" ShadowDepth="2" Opacity="0.8"/>
+            </TextBlock.Effect>
+        </TextBlock>
+    </Grid>
+</Window>
