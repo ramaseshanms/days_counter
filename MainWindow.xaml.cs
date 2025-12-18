@@ -70,7 +70,7 @@ namespace DaysCounter
             // Manual Sizing to prevent Jitter
             if (this.WindowState == WindowState.Normal && this.Width < SystemParameters.PrimaryScreenWidth)
             {
-                DaysText.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                DaysText.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
                 this.Width = DaysText.DesiredSize.Width + 60; // Padding
                 this.Height = DaysText.DesiredSize.Height + 60;
             }
