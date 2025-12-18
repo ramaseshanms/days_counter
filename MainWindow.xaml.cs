@@ -10,6 +10,9 @@ namespace DaysCounter
         private AppConfig _config;
 
         private System.Windows.Threading.DispatcherTimer _updateTimer;
+        private System.Windows.Threading.DispatcherTimer _startupTimer;
+        private System.Windows.Threading.DispatcherTimer _blinkTimer;
+        private bool _isStartupMode = false;
 
         public MainWindow()
         {
@@ -19,12 +22,45 @@ namespace DaysCounter
             _updateTimer = new System.Windows.Threading.DispatcherTimer();
             _updateTimer.Interval = TimeSpan.FromMilliseconds(100);
             _updateTimer.Tick += UpdateTimeText;
+
+            // Startup Timer (5 mins)
+            _startupTimer = new System.Windows.Threading.DispatcherTimer();
+            _startupTimer.Interval = TimeSpan.FromMinutes(5);
+            _startupTimer.Tick += StartupTimer_Tick;
+
+            // Blink Timer (e.g. 1 sec on/off)
+            _blinkTimer = new System.Windows.Threading.DispatcherTimer();
+            _blinkTimer.Interval = TimeSpan.FromMilliseconds(500);
+            _blinkTimer.Tick += BlinkTimer_Tick;
             
             ApplySettings();
         }
 
+        private void StartupTimer_Tick(object sender, EventArgs e)
+        {
+            _isStartupMode = false;
+            _startupTimer.Stop();
+            _blinkTimer.Stop();
+            DaysText.Opacity = 1.0;
+            GoMiniMode();
+        }
+
+        private void BlinkTimer_Tick(object sender, EventArgs e)
+        {
+            if (DaysText.Opacity > 0.5)
+                DaysText.Opacity = 0.2;
+            else
+                DaysText.Opacity = 1.0;
+        }
+
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            // Initial Fullscreen State
+            // Start in Startup Mode
+            _isStartupMode = true;
+            _startupTimer.Start();
+            _blinkTimer.Start();
+
             // Initial Fullscreen State
             GoFullScreen();
         }
@@ -65,7 +101,8 @@ namespace DaysCounter
             }
             
             // Scale transform
-            DaysText.LayoutTransform = new ScaleTransform(_config.OverlayScale, _config.OverlayScale);
+            double scale = _isStartupMode ? 2.0 : _config.OverlayScale;
+            DaysText.LayoutTransform = new ScaleTransform(scale, scale);
 
             // Always Size to Content (Manual) to ensure Drag works properly
             DaysText.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));

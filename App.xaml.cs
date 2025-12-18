@@ -11,7 +11,7 @@ namespace DaysCounter
     {
         private NotifyIcon _notifyIcon;
         private MainWindow _mainWindow;
-        private System.Windows.Threading.DispatcherTimer _timer;
+
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -38,15 +38,7 @@ namespace DaysCounter
             contextMenu.Items.Add("Exit", null, (s, args) => Shutdown());
             _notifyIcon.ContextMenuStrip = contextMenu;
 
-            // Timer for 5 minutes
-            _timer = new System.Windows.Threading.DispatcherTimer();
-            _timer.Interval = TimeSpan.FromMinutes(5);
-            _timer.Tick += (s, args) =>
-            {
-                _mainWindow.GoMiniMode();
-                _timer.Stop();
-            };
-            _timer.Start();
+            // Timer logic moved to MainWindow for better UI control
         }
 
         public void SetStartup(bool enable)
