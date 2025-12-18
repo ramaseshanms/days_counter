@@ -34,8 +34,8 @@ namespace DaysCounter
             if (_config == null || !_config.ShowTimeDetail) return;
 
             var diff = DateTime.Now - _config.TargetDate;
-            // Format: X Days, HH:mm:ss.f
-            DaysText.Text = $"{(int)diff.TotalDays} Days\n{diff.Hours:D2}:{diff.Minutes:D2}:{diff.Seconds:D2}.{diff.Milliseconds / 100}";
+            // Format: HH:mm:ss.ff
+            DaysText.Text = $"{diff.Hours:D2}:{diff.Minutes:D2}:{diff.Seconds:D2}.{diff.Milliseconds / 10:D2}";
         }
 
         public void ApplySettings(AppConfig config = null)
@@ -67,24 +67,22 @@ namespace DaysCounter
             // Scale transform
             DaysText.LayoutTransform = new ScaleTransform(_config.OverlayScale, _config.OverlayScale);
 
-            // Manual Sizing to prevent Jitter
-            if (this.WindowState == WindowState.Normal && this.Width < SystemParameters.PrimaryScreenWidth)
-            {
-                DaysText.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
-                this.Width = DaysText.DesiredSize.Width + 60; // Padding
-                this.Height = DaysText.DesiredSize.Height + 60;
-            }
+            // Always Size to Content (Manual) to ensure Drag works properly
+            DaysText.Measure(new System.Windows.Size(double.PositiveInfinity, double.PositiveInfinity));
+            this.Width = DaysText.DesiredSize.Width + 60; // Padding
+            this.Height = DaysText.DesiredSize.Height + 60;
         }
 
         public void GoFullScreen()
         {
             this.WindowState = WindowState.Normal;
             
-            // For fullscreen start, we can just use screen dimensions
-            this.Left = 0;
-            this.Top = 0;
-            this.Width = SystemParameters.PrimaryScreenWidth;
-            this.Height = SystemParameters.PrimaryScreenHeight;
+            // Just ensure size is correct first
+            ApplySettings(_config);
+            
+            // Center on Screen
+            this.Left = (SystemParameters.PrimaryScreenWidth - this.Width) / 2;
+            this.Top = (SystemParameters.PrimaryScreenHeight - this.Height) / 2;
             
             // Styling
             DaysText.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
@@ -95,7 +93,6 @@ namespace DaysCounter
         public void GoMiniMode()
         {
             // Transition to Mini Mode
-            // Force an update to correct size
             ApplySettings(_config);
 
             // Top Left
@@ -104,6 +101,7 @@ namespace DaysCounter
 
             DaysText.Margin = new Thickness(10);
             DaysText.TextAlignment = TextAlignment.Center;
+            DaysText.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
         }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
