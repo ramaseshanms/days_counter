@@ -100,7 +100,10 @@ namespace DaysCounter
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ButtonState == MouseButtonState.Pressed)
+            // Only allow dragging if NOT fullscreen
+            bool isFullScreen = this.Width >= SystemParameters.PrimaryScreenWidth && this.Height >= SystemParameters.PrimaryScreenHeight;
+            
+            if (!isFullScreen && e.ButtonState == MouseButtonState.Pressed)
             {
                 this.DragMove();
             }
