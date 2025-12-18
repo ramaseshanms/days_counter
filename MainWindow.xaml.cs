@@ -71,39 +71,46 @@ namespace DaysCounter
         public void GoFullScreen()
         {
             this.WindowState = WindowState.Normal;
-            this.Left = 0;
-            this.Top = 0;
-            this.Width = SystemParameters.PrimaryScreenWidth;
-            this.Height = SystemParameters.PrimaryScreenHeight;
             
-            // Center text
+            // Allow auto-sizing
+            this.SizeToContent = SizeToContent.WidthAndHeight;
+            
+            // Force layout update to get actual size
+            this.UpdateLayout();
+            
+            // Center on Screen
+            this.Left = (SystemParameters.PrimaryScreenWidth - this.ActualWidth) / 2;
+            this.Top = (SystemParameters.PrimaryScreenHeight - this.ActualHeight) / 2;
+            
+            // Styling
             DaysText.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
             DaysText.VerticalAlignment = VerticalAlignment.Center;
-            DaysText.Margin = new Thickness(0);
+            DaysText.Margin = new Thickness(20); // Add padding for drag area
         }
 
         public void GoMiniMode()
         {
-            this.Width = 350 * _config.OverlayScale; 
-            this.Height = 150 * _config.OverlayScale;
+            // Keep sizing to content, just move position and maybe scale
+            // Or if we want a fixed small box:
+            // this.SizeToContent = SizeToContent.Manual;
+            // this.Width = 350 * _config.OverlayScale;
+            // this.Height = 150 * _config.OverlayScale;
             
+            // Let's stick onto Content Sizing for better result, just move it.
+            this.SizeToContent = SizeToContent.WidthAndHeight;
+            this.UpdateLayout();
+
             // Top Left
             this.Left = 20;
             this.Top = 20;
 
-            // Align text to center
-            DaysText.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
-            DaysText.VerticalAlignment = VerticalAlignment.Center;
-            DaysText.Margin = new Thickness(0);
+            DaysText.Margin = new Thickness(10);
             DaysText.TextAlignment = TextAlignment.Center;
         }
 
         private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            // Only allow dragging if NOT fullscreen
-            bool isFullScreen = this.Width >= SystemParameters.PrimaryScreenWidth && this.Height >= SystemParameters.PrimaryScreenHeight;
-            
-            if (!isFullScreen && e.ButtonState == MouseButtonState.Pressed)
+            if (e.ButtonState == MouseButtonState.Pressed)
             {
                 this.DragMove();
             }
